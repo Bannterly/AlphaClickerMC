@@ -3,13 +3,6 @@
   <br>
   <img src="https://raw.githubusercontent.com/robiot/AlphaClicker/main/.github/Images/banner.png">
   <br>
-  
-
-  <img alt="GitHub Latest Release" src="https://img.shields.io/github/v/tag/robiot/AlphaClicker?label=Latest%20Release">
-
-  <br>
-  <a href="https://github.com/robiot/AlphaClicker/releases/latest/download/AlphaClicker.exe">Download Latest</a>
-  <hr>
 </div>
 <br>
 
