@@ -4,21 +4,18 @@
   <img src="https://raw.githubusercontent.com/robiot/AlphaClicker/main/.github/Images/banner.png">
   <br>
   
-  <img alt="GitHub All Releases" src="https://img.shields.io/github/contributors/robiot/AlphaClicker?label=Contributors">
+
   <img alt="GitHub Latest Release" src="https://img.shields.io/github/v/tag/robiot/AlphaClicker?label=Latest%20Release">
-  <img alt="GitHub Total Downloads" src="https://img.shields.io/github/downloads/robiot/AlphaClicker/total?label=GitHub%20Downloads">
-  <img alt="GitHub Total Issues" src="https://img.shields.io/github/issues/robiot/AlphaClicker?label=Issues">  
-  <img alt="GitHub Total Pull Requests" src="https://img.shields.io/github/issues-pr-raw/robiot/AlphaClicker?label=Open%20Pull%20Requests">
-  
+
   <br>
   <a href="https://github.com/robiot/AlphaClicker/releases/latest/download/AlphaClicker.exe">Download Latest</a>
   <hr>
 </div>
 <br>
 
-## Note: This is the original software, which has been copied, modified and distributed illegally by other individuals. Please do not use them.
+## Note: This is a forked project
  
-:thinking: What is this?
+
 ------------------
 <img src="https://raw.githubusercontent.com/robiot/AlphaClicker/main/.github/Images/alphaclicker.png" width=400/><img src="https://raw.githubusercontent.com/robiot/AlphaClicker/main/.github/Images/alphaclicker-dark.png" width=400/>
 
@@ -30,11 +27,9 @@ Alpha Clicker is a autoclicker for Windows with a **modern user interface**. :ar
  
  - It is open source, unlike many other autoclickers
 
-
-### :art: Design:
-Ever got tired of the old design of your autoclicker. This is for you. \
-Just you search "Autoclicker" and you will get a bunch of ancient autoclickers (which work, but look ancient).
-<img src="https://raw.githubusercontent.com/robiot/AlphaClicker/main/.github/Images/otherclickers.png" width=500/>
+### Forked Features that have been added. 
+- saves most of your features after closing.
+- added a minecraft only tickbox working for both minecraft java and minecraft bedrock. 
 
 ### :gear: Functionality:
 It basically works just like any other autoclicker.
@@ -50,10 +45,8 @@ It basically works just like any other autoclicker.
  
 :book: How to install
 ------------------
- 1. Go to the [Releases](https://github.com/robiot/AlphaClicker/releases/latest) tab.
+ 1. Go to the releases
  2. Click AlphaClicker.exe to start download
  
  *Warning: When starting AlphaClicker.exe a Blue Window (Smartscreen) Will Probably Popup.* \
  To Run The Application You Have To Press **More Info** And Then **Run Anyways**.
-
-© robiot
