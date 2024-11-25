@@ -13,10 +13,6 @@
 <img src="https://raw.githubusercontent.com/robiot/AlphaClicker/main/.github/Images/alphaclicker.png" width=400/><img src="https://raw.githubusercontent.com/robiot/AlphaClicker/main/.github/Images/alphaclicker-dark.png" width=400/>
 
 Alpha Clicker is a autoclicker for Windows with a **modern user interface**. :art:
-
-:cyclone: Why Alpha Clicker?
-------------------
-<img src="https://raw.githubusercontent.com/robiot/AlphaClicker/main/.github/Images/showcase.gif" />
  
  - It is open source, unlike many other autoclickers
 
