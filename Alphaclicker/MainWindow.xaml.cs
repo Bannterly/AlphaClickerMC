@@ -9,6 +9,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Resources;
 using System.Text;
 using System.Runtime.InteropServices;
+using System.Linq;
 
 namespace AlphaClicker
 {
@@ -25,7 +26,6 @@ namespace AlphaClicker
             bool isChecked = false;
             try
             {
-                //  get checkbox state from the thread
                 Dispatcher.Invoke(() =>
                 {
                     isChecked = (bool)minecraftOnlyCheckbox.IsChecked;
@@ -47,7 +47,7 @@ namespace AlphaClicker
             }
             catch
             {
-                return true; //  allow the operation
+                return true;
             }
         }
 
@@ -171,6 +171,7 @@ namespace AlphaClicker
 
             Dispatcher.Invoke((Action)(() =>
             {
+                /* Grab Click Interval */
                 try
                 {
                     useRandomSleep = (bool)randomIntervalMode.IsChecked;
@@ -202,9 +203,11 @@ namespace AlphaClicker
                     return;
                 }
 
-                mouseBtn = mouseBtnCBOX.Text;
-                clickType = clickTypeCBOX.Text;
+                /* Grab Mousebutton And Clicktype */
+                mouseBtn = (mouseBtnCBOX.SelectedItem as ComboBoxItem)?.Content.ToString();
+                clickType = (clickTypeCBOX.SelectedItem as ComboBoxItem)?.Content.ToString();
 
+                /* Grab Repeat Stuff */
                 repeatTimesChecked = (bool)repeatTimesRBtn.IsChecked;
                 if (repeatTimesChecked)
                 {
@@ -219,6 +222,7 @@ namespace AlphaClicker
                     }
                 }
 
+                /* Grab Coords Stuff */
                 customCoordsChecked = (bool)coordsCBtn.IsChecked;
                 if (customCoordsChecked)
                 {
@@ -229,7 +233,7 @@ namespace AlphaClicker
                     }
                     catch (FormatException)
                     {
-                        Cerror("Invalid Repeat Times Number");
+                        Cerror("Invalid Coordinates");
                         return;
                     }
                 }
@@ -270,6 +274,15 @@ namespace AlphaClicker
                         repeatCount += 1;
                     }
 
+                    // Get current cursor position before clicking
+                    WinApi.POINT currentPos = new WinApi.POINT();
+                    if (!customCoordsChecked)
+                    {
+                        WinApi.GetCursorPos(out currentPos);
+                        customCoordsX = currentPos.X;
+                        customCoordsY = currentPos.Y;
+                    }
+
                     if (clickType == "Single")
                     {
                         WinApi.DoClick(mouseBtn, customCoordsChecked, customCoordsX, customCoordsY);
@@ -281,11 +294,11 @@ namespace AlphaClicker
                         WinApi.DoClick(mouseBtn, customCoordsChecked, customCoordsX, customCoordsY);
                     }
 
-                    Dispatcher.Invoke((Action)(() =>
+                    if (useRandomSleep)
                     {
-                        sleep = (!useRandomSleep) ? sleep : rnd.Next((randnum1 < randnum2) ? randnum1 : randnum2
-                                , (randnum1 > randnum2) ? randnum1 : randnum2);
-                    }));
+                        sleep = rnd.Next((randnum1 < randnum2) ? randnum1 : randnum2,
+                                       (randnum1 > randnum2) ? randnum1 : randnum2);
+                    }
 
                     Thread.Sleep(sleep);
                 }
@@ -305,6 +318,30 @@ namespace AlphaClicker
             // Load minecraft only setting
             minecraftOnlyCheckbox.IsChecked = AlphaRegistry.GetMinecraftOnly();
 
+            // Load saved configuration
+            var config = AlphaRegistry.LoadClickerConfig();
+
+            // Apply the loaded configuration
+            hoursBox.Text = config.hours;
+            minsBox.Text = config.mins;
+            secondsBox.Text = config.secs;
+            millisecsBox.Text = config.millis;
+            randomSecs1Box.Text = config.random1;
+            randomSecs2Box.Text = config.random2;
+
+            randomIntervalMode.IsChecked = config.isRandomMode;
+            clickIntervalMode.IsChecked = !config.isRandomMode;
+
+            mouseBtnCBOX.SelectedItem = mouseBtnCBOX.Items.Cast<ComboBoxItem>()
+                .FirstOrDefault(item => item.Content.ToString() == config.mouseButton);
+
+            clickTypeCBOX.SelectedItem = clickTypeCBOX.Items.Cast<ComboBoxItem>()
+                .FirstOrDefault(item => item.Content.ToString() == config.clickType);
+
+            repeatTimesRBtn.IsChecked = config.isRepeatTimes;
+            repeatForeverRBtn.IsChecked = !config.isRepeatTimes;
+            repeatTimesBox.Text = config.repeatTimes;
+
             Thread keyhandler = new Thread(KeyHandler);
             keyhandler.Start();
 
@@ -314,9 +351,59 @@ namespace AlphaClicker
 
         private void mainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-           // saving minecraft only setting
+            // Save all configuration
+            AlphaRegistry.SaveClickerConfig(
+                hoursBox.Text,
+                minsBox.Text,
+                secondsBox.Text,
+                millisecsBox.Text,
+                randomSecs1Box.Text,
+                randomSecs2Box.Text,
+                (bool)randomIntervalMode.IsChecked,
+                (mouseBtnCBOX.SelectedItem as ComboBoxItem)?.Content.ToString(),
+                (clickTypeCBOX.SelectedItem as ComboBoxItem)?.Content.ToString(),
+                (bool)repeatTimesRBtn.IsChecked,
+                repeatTimesBox.Text
+            );
+
             AlphaRegistry.SetMinecraftOnly((bool)minecraftOnlyCheckbox.IsChecked);
             Environment.Exit(0);
+        }
+      
+
+        private void getCoordsBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+            GetCursorPos win = new GetCursorPos();
+            win.Owner = this;
+            win.Show();
+        }
+
+        private void startBtn_Click(object sender, RoutedEventArgs e)
+        {
+            ToggleClick();
+        }
+
+        private void stopBtn_Click(object sender, RoutedEventArgs e)
+        {
+            ToggleClick();
+        }
+
+        private void changeHotkeyBtn_Click(object sender, RoutedEventArgs e)
+        {
+            keyEnabled = false;
+            ChangeHotkey win = new ChangeHotkey();
+            win.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            win.Owner = this;
+            win.ShowDialog();
+        }
+
+        private void windowSettingsBtn_Click(object sender, RoutedEventArgs e)
+        {
+            WindowSettings win = new WindowSettings();
+            win.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            win.Owner = this;
+            win.ShowDialog();
         }
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -340,46 +427,6 @@ namespace AlphaClicker
         private void minimizeButton_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
-        }
-
-        private void getCoordsBtn_Click(object sender, RoutedEventArgs e)
-        {
-          
-
-            this.WindowState = WindowState.Minimized;
-            GetCursorPos win = new GetCursorPos();
-            win.Owner = this;
-            win.Show();
-        }
-
-        private void startBtn_Click(object sender, RoutedEventArgs e)
-        {
-            ToggleClick();
-        }
-
-        private void stopBtn_Click(object sender, RoutedEventArgs e)
-        {
-            ToggleClick();
-        }
-
-        private void changeHotkeyBtn_Click(object sender, RoutedEventArgs e)
-        {
-          
-
-            keyEnabled = false;
-            ChangeHotkey win = new ChangeHotkey();
-            win.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            win.Owner = this;
-            win.ShowDialog();
-        }
-
-        private void windowSettingsBtn_Click(object sender, RoutedEventArgs e)
-        {
-        
-            WindowSettings win = new WindowSettings();
-            win.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            win.Owner = this;
-            win.ShowDialog();
         }
     }
 }
