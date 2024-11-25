@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 
@@ -6,7 +6,6 @@ namespace AlphaClicker
 {
     public class WinApi
     {
-        
         [StructLayout(LayoutKind.Sequential)]
         public struct POINT
         {
@@ -28,7 +27,6 @@ namespace AlphaClicker
         [DllImport("user32.dll")]
         public static extern int SetCursorPos(int x, int y);
 
-        // Get custom coords
         [DllImport("user32.dll")]
         public static extern bool GetCursorPos(out POINT lpPoint);
 
