@@ -1,4 +1,4 @@
-﻿<Window x:Name="mainWindow" x:Class="AlphaClicker.MainWindow"
+<Window x:Name="mainWindow" x:Class="AlphaClicker.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -84,6 +84,17 @@
                     <ScaleTransform ScaleX="1.0" ScaleY="1.0" />
                 </Ellipse.RenderTransform>
             </Ellipse>
+
+            <!-- 1 -->
+            <CheckBox x:Name="minecraftOnlyCheckbox" 
+    Content="Minecraft Only"
+    IsChecked="False"
+    VerticalAlignment="Top"
+    Grid.Row="1"
+    Margin="22,175,0,0"
+    FontSize="11" Foreground="White"/>
+
+
 
             <Grid Grid.Row="1" HorizontalAlignment="Stretch" Height="Auto" Margin="0,0,0,0" VerticalAlignment="Stretch" Width="Auto">
                 <Grid.RowDefinitions>
@@ -248,55 +259,55 @@
                 <RadioButton x:Name="currentLocationCBtn" Content=" Current Location"
                     GroupName="Location"
                     Grid.Row="2"
-                    VerticalAlignment="Center"
-                    Margin="22,0,0,0" 
+                    VerticalAlignment="Top"
+                    Margin="22,33,0,0" 
                     IsChecked="True"
                     FontSize="13"/>
 
                 <RadioButton x:Name="coordsCBtn" Content=""
                     GroupName="Location"
                     Grid.Row="2"
-                    VerticalAlignment="Center"
-                    Margin="191,0,17,0"
+                    VerticalAlignment="Top"
+                    Margin="197,33,11,0"
                     FontSize="13"/>
 
                 <Button x:Name="getCoordsBtn" 
                     Content="Get"
                     HorizontalAlignment="Left"
                     Grid.Row="2"
-                    VerticalAlignment="Center"
+                    VerticalAlignment="Top"
                     Height="30" Width="56"
                     Background="{DynamicResource DarkControls2}"
-                    Margin="214,0,0,0"
+                    Margin="219,27,0,0"
                     Click="getCoordsBtn_Click"/>
 
                 <Label Content="X"
                     FontSize="15"
                    
-                    VerticalAlignment="Center"
+                    VerticalAlignment="Top"
                     HorizontalAlignment="Right" 
                    
                     Grid.Row="2"
-                    Margin="0,0,146,0"/>
+                    Margin="0,26,146,0" RenderTransformOrigin="0.613,1.29"/>
 
                 <TextBox x:Name="xBox" Text="0"
                     Width="50"
-                    Margin="294,0,96,0"
-                    Grid.Row="2" VerticalAlignment="Center"/>
+                    Margin="293,27,96,0"
+                    Grid.Row="2" VerticalAlignment="Top"/>
 
                 <Label Content="Y"
                     FontSize="15"
                    
-                    VerticalAlignment="Center"
+                    VerticalAlignment="Top"
                     HorizontalAlignment="Right" 
                    
-                    Grid.Row="2" Margin="0,0,72,0"/>
+                    Grid.Row="2" Margin="0,27,72,0" RenderTransformOrigin="0.602,0.491"/>
 
                 <TextBox x:Name="yBox" Text="0"
                     Width="50"
-                    Margin="368,0,22,0"
+                    Margin="367,27,22,0"
                     Grid.Row="2"
-                    VerticalAlignment="Center"/>
+                    VerticalAlignment="Top"/>
 
                 <!-- 3 -->
                 <Button x:Name="startBtn"
