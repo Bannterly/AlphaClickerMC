@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Threading;
 using System.Windows;
@@ -7,19 +7,55 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Resources;
+using System.Text;
+using System.Runtime.InteropServices;
 
 namespace AlphaClicker
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        private static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
+
+        private bool IsMinecraftActive()
+        {
+            bool isChecked = false;
+            try
+            {
+                //  get checkbox state from the thread
+                Dispatcher.Invoke(() =>
+                {
+                    isChecked = (bool)minecraftOnlyCheckbox.IsChecked;
+                });
+
+                if (!isChecked)
+                    return true;
+
+                const int nChars = 256;
+                StringBuilder buff = new StringBuilder(nChars);
+                IntPtr handle = GetForegroundWindow();
+
+                if (GetWindowText(handle, buff, nChars) > 0)
+                {
+                    string windowTitle = buff.ToString();
+                    return windowTitle.Contains("Minecraft");
+                }
+                return false;
+            }
+            catch
+            {
+                return true; //  allow the operation
+            }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
         }
-        
+
         public void LoadKeybind()
         {
             startBtn.Content = $"Start ({Keybinds.keyBinding})";
@@ -31,13 +67,11 @@ namespace AlphaClicker
             ToggleClick();
             MessageBox.Show(errormessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
-        
+
         private int ToInt(string number)
         {
-            // Return int | Replace Empty With 0
             return Int32.Parse((number == "") ? "0" : number);
         }
-
 
         private void FadeButtonColor(Button btn, string hex)
         {
@@ -51,12 +85,15 @@ namespace AlphaClicker
 
         private void ToggleClick()
         {
+            if (!IsMinecraftActive())
+            {
+                return;
+            }
+
             string startEnabled = "#1494e3";
             string startDisabled = "#084466";
-
             string stopEnabled = "#FF605C";
             string stopDisabled = "#c43c35";
-
 
             if (startBtn.IsEnabled)
             {
@@ -72,7 +109,6 @@ namespace AlphaClicker
             {
                 FadeButtonColor(startBtn, startEnabled);
                 FadeButtonColor(stopBtn, stopDisabled);
-
                 startBtn.IsEnabled = true;
                 stopBtn.IsEnabled = false;
             }
@@ -83,7 +119,7 @@ namespace AlphaClicker
         {
             while (true)
             {
-                if (keyEnabled)
+                if (keyEnabled && IsMinecraftActive())
                 {
                     if (Keybinds.key1 == -1)
                     {
@@ -109,29 +145,32 @@ namespace AlphaClicker
                 }
                 Thread.Sleep(200);
             }
-
         }
 
         void ClickHandler()
         {
-            int sleep = 0;
+            if (!IsMinecraftActive())
+            {
+                Dispatcher.Invoke((Action)(() =>
+                {
+                    ToggleClick();
+                }));
+                return;
+            }
 
+            int sleep = 0;
             bool useRandomSleep = false;
             int randnum1 = 0;
             int randnum2 = 0;
-
             string mouseBtn = "";
             string clickType = "";
-
             bool repeatTimesChecked = false;
             int repeatTimes = 0;
-
             bool customCoordsChecked = false;
-            int customCoordsX = 0, customCoordsY = 0; 
+            int customCoordsX = 0, customCoordsY = 0;
 
             Dispatcher.Invoke((Action)(() =>
             {
-                /* Grab Click Interval */
                 try
                 {
                     useRandomSleep = (bool)randomIntervalMode.IsChecked;
@@ -143,8 +182,6 @@ namespace AlphaClicker
                                                CultureInfo.InvariantCulture.NumberFormat) * 1000);
                         randnum1 = (randnum1 == 0) ? 1 : randnum1;
                         randnum2 = (randnum2 == 0) ? 1 : randnum2;
-
-
                     }
                     else
                     {
@@ -159,18 +196,15 @@ namespace AlphaClicker
                         sleep = (sleep == 0) ? 1 : sleep;
                     }
                 }
-
                 catch (FormatException ex)
                 {
                     Cerror(ex.ToString());
                     return;
                 }
 
-                /* Grab Mousebutton And Clicktype */
                 mouseBtn = mouseBtnCBOX.Text;
                 clickType = clickTypeCBOX.Text;
 
-                /* Grab Repeat Stuff */
                 repeatTimesChecked = (bool)repeatTimesRBtn.IsChecked;
                 if (repeatTimesChecked)
                 {
@@ -185,8 +219,6 @@ namespace AlphaClicker
                     }
                 }
 
-
-                /* Grab Coords Stuff */
                 customCoordsChecked = (bool)coordsCBtn.IsChecked;
                 if (customCoordsChecked)
                 {
@@ -208,6 +240,15 @@ namespace AlphaClicker
 
             while (true)
             {
+                if (!IsMinecraftActive())
+                {
+                    Dispatcher.Invoke((Action)(() =>
+                    {
+                        ToggleClick();
+                    }));
+                    break;
+                }
+
                 bool doClick = false;
                 Dispatcher.Invoke((Action)(() =>
                 {
@@ -242,10 +283,8 @@ namespace AlphaClicker
 
                     Dispatcher.Invoke((Action)(() =>
                     {
-                        // Random sleep
                         sleep = (!useRandomSleep) ? sleep : rnd.Next((randnum1 < randnum2) ? randnum1 : randnum2
                                 , (randnum1 > randnum2) ? randnum1 : randnum2);
-                        
                     }));
 
                     Thread.Sleep(sleep);
@@ -263,17 +302,20 @@ namespace AlphaClicker
                 ThemesController.SetTheme(ThemesController.ThemeTypes.Dark);
             this.Topmost = AlphaRegistry.GetTopmost();
 
+            // Load minecraft only setting
+            minecraftOnlyCheckbox.IsChecked = AlphaRegistry.GetMinecraftOnly();
+
             Thread keyhandler = new Thread(KeyHandler);
             keyhandler.Start();
 
-            // Get Keybind Values From SOFTWARE\AlphaClicker
             AlphaRegistry.GetKeybindValues();
             LoadKeybind();
         }
 
         private void mainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // So all threads close and not become background process
+           // saving minecraft only setting
+            AlphaRegistry.SetMinecraftOnly((bool)minecraftOnlyCheckbox.IsChecked);
             Environment.Exit(0);
         }
 
@@ -282,7 +324,6 @@ namespace AlphaClicker
             DragMove();
         }
 
-        // To disable annoying alt
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.System)
@@ -291,7 +332,6 @@ namespace AlphaClicker
             }
         }
 
-        /* Top Bar */
         private void closeButton_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Close();
@@ -304,6 +344,8 @@ namespace AlphaClicker
 
         private void getCoordsBtn_Click(object sender, RoutedEventArgs e)
         {
+          
+
             this.WindowState = WindowState.Minimized;
             GetCursorPos win = new GetCursorPos();
             win.Owner = this;
@@ -322,6 +364,8 @@ namespace AlphaClicker
 
         private void changeHotkeyBtn_Click(object sender, RoutedEventArgs e)
         {
+          
+
             keyEnabled = false;
             ChangeHotkey win = new ChangeHotkey();
             win.WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -331,6 +375,7 @@ namespace AlphaClicker
 
         private void windowSettingsBtn_Click(object sender, RoutedEventArgs e)
         {
+        
             WindowSettings win = new WindowSettings();
             win.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             win.Owner = this;
